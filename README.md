@@ -9,8 +9,6 @@ XLtoy framework can read, parse, diff, validate, manage changes and run out of t
 Main idea here to do identify a subset of interesting cells and focalize only on these, so 
 with minimum changes to an existent sheet, the parser can handle all involved data.
 
-<img src=https://github.com/glaucouri/xltoy/img/simple_model.png> 
-
 ![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/simple_model.png?raw=true)
 
 
