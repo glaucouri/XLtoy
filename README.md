@@ -11,6 +11,7 @@ with minimum changes to an existent sheet, the parser can handle all involved da
 
 <img src=https://github.com/glaucouri/xltoy/img/simple_model.png> 
 
+![xlsample](https://github.com/glaucouri/xltoy/img/simple_model.png?raw=true)
 
 
 ### Installation
