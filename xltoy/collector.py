@@ -1,12 +1,14 @@
 from openpyxl import load_workbook
 from openpyxl.worksheet.cell_range import CellRange
 from openpyxl.cell import Cell
+from collections import defaultdict
 from os.path import isfile
+from datetime import datetime
 from . import log, version
+
 import re
 import yaml
 import dictdiffer
-
 
 def useless_range(rng):
     """
@@ -155,26 +157,18 @@ class Collector:
         if not self.pseudo:
             # Remember dict are ordered!
             self.pseudo['xltoy.version'] = version
-            self.pseudo['filename'] = self.url
+            self.pseudo['xltoy.filename'] = self.url
+            self.pseudo['xltoy.datetime'] = datetime.now().isoformat()
 
             for sheet, labels in self.labels.items():
-                self.pseudo[sheet] = dict(zip(labels, self.models[sheet]))
+                self.pseudo[sheet] = dict(zip(labels.values(), self.models[sheet].values()))
                 if sheet in self.data:
                     self.pseudo[sheet]['data'] = self.data[sheet]
 
-
             # We must handle data ranges not touched before, here
             # we have only data range not in sheet with labels
-            for sheet  in set(self.data) - set(self.labels):
+            for sheet in set(self.data) - set(self.labels):
                 self.pseudo[sheet] = self.data[sheet]
-
-
-
-
-
-
-
-
 
     def to_yaml(self):
         self.set_pseudo_excel()
@@ -200,19 +194,28 @@ class DiffCollector:
         c1,c2 = [YamlCollector(url) if url.lower().endswith('yaml') else Collector(url,only_data=only_data)
                  for url in [url1,url2]]
 
-        self.diff = dictdiffer.diff(c1.pseudo,c2.pseudo)
+        self.iter_differs = dictdiffer.diff(c1.pseudo,c2.pseudo)
+        self.diff = {}
 
     def to_yaml(self):
-        res = {}
-        for kind, mid, sh_cells in self.diff:
-            res[kind] = {}
-            if kind == 'change':
-                sheet, label = mid.split('.')
-                res[kind][sheet] = {}
-                res[kind][sheet][label] = ' -> '.join(['{}'.format(x) for x in sh_cells])
-            else:
-                for sheet, cells in sh_cells:
-                    res[kind][sheet] = cells
-
-        print(yaml.dump(res))
+        if not self.diff:
+            for kind, mid, sh_cells in self.iter_differs:
+                if kind not in self.diff:
+                    self.diff[kind] = {}
+                if isinstance(mid, list):
+                    if len(mid)==1:
+                        mid = mid[0]
+                    else:
+                        raise RuntimeError("{} not understood".format(mid))
+                if kind == 'change':
+                    sheet, label = mid.split('.')
+                    if sheet not in self.diff[kind]:
+                        self.diff[kind][sheet] = {}
+                    self.diff[kind][sheet][label] = ' -> '.join(['{}'.format(x) for x in sh_cells])
+                else:
+                    for sheet, cells in sh_cells:
+                        if sheet not in self.diff[kind]:
+                            self.diff[kind][sheet] = {}
+                        self.diff[kind][sheet] = cells
+        print(yaml.dump(self.diff))
 
