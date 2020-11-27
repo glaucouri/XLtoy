@@ -6,8 +6,8 @@ In this example, we compare 2 workbook with only 1 data range each one.
 Working area is set only on numeric cells, so we can only do positional difference,
 in this case we have add a new line, row 12 and changed a cell in position M7.
 
-<img src=https://github.com/glaucouri/xltoy/img/data_sample1.png>
-<img src=https://github.com/glaucouri/xltoy/img/data_sample1_diff.png>
+![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/data_sample1.png?raw=true)
+![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/data_sample1_diff.png?raw=true)
 
 ```
 (xltoy)$ xltoy diff data/data_sample1.xlsx data/data_sample1_diff.xlsx
