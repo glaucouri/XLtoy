@@ -9,8 +9,7 @@ XLtoy framework can read, parse, diff, validate, manage changes and run out of t
 Main idea here to do identify a subset of interesting cells and focalize only on these, so 
 with minimum changes to an existent sheet, the parser can handle all involved data.
 
-<img src=https://github.com/glaucouri/xltoy/img/simple_model.png> 
-
+![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/simple_model.png?raw=true)
 
 
 ### Installation
@@ -51,19 +50,7 @@ The framework will be finished in some steps, i want to share the release plane 
 starting with first release i will need feedback, use cases and tester.  
 
 #### Version 0.1: first working version:
-* **Working rules** are well defined.
+* it define working rules
 * fully testes with py3.6 to py3.8
-* collector can read data, formulas and can show an entire workbook as yaml or json.
-* **diff** works with data and formulas too, it can compare 2 workbook or a representation of it yaml or json.
-* **positional** or **semantic** data diff  
-
-#### Version 0.2: parser in action:
-* docker file
-* Publish on PyPI
-* Formulas can be parsed and translated into python code.
-
-#### Version 0.3: executor:
-* All formulas bound in a graph so we can find predecessors and successors for analysis
-* Topological sort for pure python execution of the model.
-* Data binding with self contained or external data sources.
-
+* collector can read data,formulas and can show an entire workbook as yaml or json.
+* **diff** works with data and formulas too, it can compare 2 workbook or a representation of it yaml or json.  
