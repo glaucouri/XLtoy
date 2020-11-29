@@ -1,10 +1,11 @@
 ## xltoy tutorial
 
-#### case1: data diff [positional]
+#### case1: data diff [positional absolute]
 
 In this example, we compare 2 workbook with only 1 data range each one. 
-Working area is set only on numeric cells, so we can only do positional difference,
-in this case we have add a new line, row 12 and changed a cell in position M7.
+Working area is set only on numeric cells, so we can do positional difference.
+In second workbook we have add a new line, row 12 corresponding to VAR_9 
+and changed a cell in position M7.
 
 ![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/data_sample1.png?raw=true)
 ![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/data_sample1_diff.png?raw=true)
@@ -31,7 +32,17 @@ add:
 change:
   data_sample:
     M7: 905509 -> 905510
-  xltoy:
-    datetime: 2020-11-27T17:43:30.051900 -> 2020-11-27T17:43:30.068501
-    filename: data/data_sample1.xlsx -> data/data_sample1_diff.xlsx
 
+
+#### case2: data diff [positional relative]
+
+First work book is from case1
+In second workbook range was moved to another position 
+
+![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/data_sample1_relative.png?raw=true)
+
+```
+(xltoy)$ xltoy diff data/data_sample1.xlsx  data/data_sample1_relative.xlsx   --relative
+
+<no output>
+```

@@ -30,7 +30,7 @@ class Collector:
     model_names = [re.compile('^model', re.IGNORECASE)]
     data_names = [re.compile('^data', re.IGNORECASE)]
 
-    def __init__(self, url, only_data=False):
+    def __init__(self, url:str, only_data:bool=False, relative:bool=False, add_fingerprint:bool=False):
         """
         Main data injestion, we need 2 instances of the sheet:
           - wb_data: with static data
@@ -38,6 +38,7 @@ class Collector:
 
         :param url: url to an input excel file
         :param only_data: read only static values
+        :param relative: all area are treated as if they starts from Row1 Col1
         """
         if not isfile(url):
             raise FileNotFoundError("File {} does not exists".format(url))
@@ -57,6 +58,8 @@ class Collector:
             self.wb = self.wb_data
         else:
             self.wb = load_workbook(filename=self.url)
+        self.relative = relative
+        self.add_fingerprint = add_fingerprint
 
         self.sheetnames = self.wb_data.sheetnames
         self.named_ranges = self.wb_data.get_named_ranges()
@@ -129,6 +132,16 @@ class Collector:
         log.debug("{} parameters collected".format(len(self.params)))
         log.debug("{} text range collected".format(len(self.text_ranges)))
 
+    def to_relative(self, rng_name:str, cell:Cell) -> str:
+        """
+        :param rng_name:
+        :param cell:
+        :return:
+        """
+        ref_cell = self.ranges[rng_name][0]
+        min_row, min_col = ref_cell.row, ref_cell.column
+        return "R{0}C{0}".format(cell.row - min_row + 1, cell.column - min_col + 1)
+
 
     def handle_range(self, labels: list, use_data:bool):
         """
@@ -147,18 +160,21 @@ class Collector:
                         raise NotImplementedError("Range defined on multiple sheets is not handled")
                     sheet_name = sheet_names.pop()
                     if use_data:
-                        coll[sheet_name] = {x.coordinate:x.value for x in cells}
+                        coll[sheet_name] = {self.to_relative(lbl,x) if self.relative else x.coordinate:x.value
+                                            for x in cells}
                     else:
-                        coll[sheet_name] = {x.coordinate:self.wb[sheet_name][x.coordinate].value for x in cells}
+                        coll[sheet_name] = {self.to_relative(lbl,x) if self.relative else x.coordinate:self.wb[sheet_name][x.coordinate].value
+                                            for x in cells}
                     break
         return coll
 
     def set_pseudo_excel(self):
         if not self.pseudo:
             # Remember dict are ordered!
-            self.pseudo['xltoy.version'] = version
-            self.pseudo['xltoy.filename'] = self.url
-            self.pseudo['xltoy.datetime'] = datetime.now().isoformat()
+            if self.add_fingerprint:
+                self.pseudo['xltoy.version'] = version
+                self.pseudo['xltoy.filename'] = self.url
+                self.pseudo['xltoy.datetime'] = datetime.now().isoformat()
 
             for sheet, labels in self.labels.items():
                 self.pseudo[sheet] = dict(zip(labels.values(), self.models[sheet].values()))
@@ -190,8 +206,17 @@ class YamlCollector(Collector):
 
 
 class DiffCollector:
-    def __init__(self, url1, url2, only_data:bool=False):
-        c1,c2 = [YamlCollector(url) if url.lower().endswith('yaml') else Collector(url,only_data=only_data)
+    def __init__(self, url1, url2, only_data:bool=False, relative:bool=False, add_fingerprint:bool=False):
+        """
+        workbook differ, given 2 files (excel, yaml or json) it can do intelligent comparison
+
+        :param url1:
+        :param url2:
+        :param only_data: ignore formulas and compare only values
+        :param relative: all area are treated as if they starts from Row1 Col1
+        :param add_fingerprint:
+        """
+        c1,c2 = [YamlCollector(url) if url.lower().endswith('yaml') else Collector(url,only_data=only_data, relative=relative, add_fingerprint=add_fingerprint)
                  for url in [url1,url2]]
 
         self.iter_differs = dictdiffer.diff(c1.pseudo,c2.pseudo)
@@ -217,5 +242,6 @@ class DiffCollector:
                         if sheet not in self.diff[kind]:
                             self.diff[kind][sheet] = {}
                         self.diff[kind][sheet] = cells
-        print(yaml.dump(self.diff))
+        if self.diff:
+            print(yaml.dump(self.diff))
 
