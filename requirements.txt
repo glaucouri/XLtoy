@@ -4,3 +4,4 @@ dictdiffer
 pyparsing==2.4.7
 tox>=3.20
 pytest
+click

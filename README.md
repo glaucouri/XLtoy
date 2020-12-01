@@ -1,30 +1,39 @@
-# XLtoy: 
-The ultimate toolkit for Microsoft Excel modelers. 
+## XLtoy: 
+The ultimate toolkit for Microsoft Excel modelers and operations. 
 
-### The name
-*XLtoy* it's a word pun that starts from *xt to py* concept, but the *p* seem superfluous here and *xlto(p)y* became 
+#### The name
+*XLtoy* it's a word pun that starts from *exel to py* concept, but the *p* seem superfluous here and *xlto(p)y* became 
 XLtoy, more funny.
 
 ### Description
 XLtoy framework can read, parse, diff, validate, manage changes and run out of the box complicated models written 
-using Microsoft Excel. All features will be developed in the dev plan below.
-I found that is too difficult, and often useless, to analyze an entire workbook, so main idea, here, is to 
-identify a subset of areas of interest and focalize only on these, so with minimum changes to an existent sheet, 
-the parser can handle it and produce usefull information. If you can apply some simple 
+using Microsoft Excel. Not all features are ready now, but the development plan is show below.
+I found that is too difficult, and often useless, to analyze an entire workbook, this approach force to write 
+unpredictable algorithms. So main idea, is to identify a subset of areas of interest, defines as *working areas*
+and focus only on these, so with minimum changes to an existent sheet, the parser can handle it and produce 
+useful information. If you can apply some simple 
 [ rules](https://raw.githubusercontent.com/glaucouri/xltoy/main/rules.md)
 you are ready to go!
 
-This is an example of a tipical forecasting model that can be well handled by xltoy.
+This is an example of a common forecasting model that can be well handled by XLtoy.
 ![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/simple_model.png?raw=true)
-Green cells contain actual (or hystorical) values, model is developed in salmon and 
-dragged (in yellow). 
+Green cells contain actual (or hystorical) values, model in salmon for the first calculated step,
+and in yellow dragged cells, the rest of the model. 
 
 ### Installation
-Up to now, xltoy is available only on github repo, so after clone: 
+It's strongly suggested to use virtualenv:
 
-> python setup.py
+```
+>pip3 install virtualenv
+>python3 -m venv XLtoy_pyenv
+>source XLtoy_pyenv/bin/activate
 
-After that, all features are accessible via *xltoy* cli command.
+>git clone https://github.com/glaucouri/XLtoy.git
+>cd XLtoy/
+>python setup.py install
+```
+
+All features now are accessible via *xltoy* cli command.
 
 ```
 > xltoy --help
@@ -39,8 +48,16 @@ Commands:
   diff
 
 ```
+### Documentation
+ 
 
-## The framework
+[working rules](https://raw.githubusercontent.com/glaucouri/xltoy/main/rules.md)
+[Tutorial](https://raw.githubusercontent.com/glaucouri/xltoy/main/tutorial.md)
+
+
+
+#### Framework descriptions
+
 The XLtoy Framework is composed of many subpackages, all of them are reachable via cli sub command.
 
 * **xltoy.collector** : It read an excel workbook and extract all needed information, following rules described here. 

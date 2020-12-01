@@ -32,17 +32,17 @@ add:
 change:
   data_sample:
     M7: 905509 -> 905510
-
+```
 
 #### case2: data diff [positional relative]
 
-First work book is from case1
+First workbook is from case1
 In second workbook range was moved to another position 
 
 ![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/data_sample1_relative.png?raw=true)
 
-```
-(xltoy)$ xltoy diff data/data_sample1.xlsx  data/data_sample1_relative.xlsx   --relative
+(xltoy)$ xltoy diff data/data_sample1.xlsx  data/data_sample1_relative.xlsx  --relative
 
 <no output>
 ```
+So in relative mode, no difference found
