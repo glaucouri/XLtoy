@@ -40,7 +40,7 @@ First workbook is from case1
 In second workbook range was moved to another position 
 
 ![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/data_sample1_relative.png?raw=true)
-
+```
 (xltoy)$ xltoy diff data/data_sample1.xlsx  data/data_sample1_relative.xlsx  --relative
 
 <no output>
