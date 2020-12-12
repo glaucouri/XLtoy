@@ -27,7 +27,10 @@ ParserElement.enablePackrat()
 
 EQ, LPAR, RPAR, COLON, COMMA = map(Suppress, "=():,")
 EXCL, DOLLAR = map(Literal, "!$")
-sheetRef = Word(alphas, alphanums + '_') | QuotedString("'", escQuote="''")
+multOp = oneOf("* /")
+addOp = oneOf("+ -")
+words = Word(alphas, alphanums + '_')
+sheetRef = words | QuotedString("'", escQuote="''")
 colRef = Optional(DOLLAR) + Word(alphas, max=2)
 rowRef = Optional(DOLLAR) + Word(nums)
 cellRef = Combine(
@@ -47,7 +50,7 @@ condExpr = expr + Optional(COMPARISON_OP + expr)
 
 ifFunc = (
     CaselessKeyword("if")
-    - LPAR
+    + LPAR
     + Group(condExpr)("condition")
     + COMMA
     + Group(expr)("if_true")
@@ -65,10 +68,10 @@ sumFunc = stat_function("sum")
 minFunc = stat_function("min")
 maxFunc = stat_function("max")
 aveFunc = stat_function("ave")
-funcCall = ifFunc | sumFunc | minFunc | maxFunc | aveFunc
+unknowFunc = words + Group(LPAR + expr + RPAR)
 
-multOp = oneOf("* /")
-addOp = oneOf("+ -")
+funcCall = ifFunc | sumFunc | minFunc | maxFunc | aveFunc #| unknowFunc
+
 numericLiteral = ppc.number
 operand = numericLiteral | funcCall | cellRange | cellRef
 arithExpr = infixNotation(
@@ -79,7 +82,7 @@ arithExpr = infixNotation(
 textOperand = dblQuotedString | cellRef
 textExpr = infixNotation(textOperand, [("&", 2, opAssoc.LEFT),])
 
-expr <<= arithExpr | textExpr
+expr <<= Optional(addOp)+(arithExpr | textExpr)
 
 bnf = EQ+expr
 xl_parse = bnf.parseString

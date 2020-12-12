@@ -81,7 +81,7 @@ class Collector:
         # Check for anonimous models
         for k,v in self.models.items():
             if k not in self.labels:
-                anon_labels = ['anon_{}'.format(x) for x in range(1,len(v))]
+                anon_labels = {'anon_{}'.format(x):'anon_{}'.format(x) for x in range(1,len(v))}
                 self.anon_models[k] = '{} anon labels assigned'.format(len(anon_labels))
                 self.labels[k] = anon_labels
         self.set_pseudo_excel()

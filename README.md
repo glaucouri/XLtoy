@@ -1,5 +1,10 @@
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/xltoy)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/glaucouri/xltoy)
+![Travis (.com)](https://img.shields.io/travis/com/glaucouri/xltoy)
+
+
 ## XLtoy: 
-The ultimate toolkit for Microsoft Excel modelers and operations. 
+The ultimate toolkit for Microsoft Excel modelers and mod-operations. 
 
 #### The name
 *XLtoy* it's a word pun that starts from *exel to py* concept, but the *p* seem superfluous here and *xlto(p)y* became 
@@ -8,11 +13,16 @@ XLtoy, more funny.
 ### Description
 XLtoy framework can read, parse, diff, validate, manage changes and run out of the box complicated models written 
 using Microsoft Excel. Not all features are ready now, but the development plan is show below.
-I found that is too difficult, and often useless, to analyze an entire workbook, this approach force to write 
-unpredictable algorithms. So main idea, is to identify a subset of areas of interest, defines as *working areas*
+This tool is suitable for modelers who need change management tools, for example in a collaborative environment,
+is useful know what's changed in data of formulas. No less, dev-ops (od mod-ops) than need an instrument to identify 
+uniquely model, data, and changes on each delivery.
+--- 
+After many year in this field, i found that is too difficult, and often useless, to analyze an entire workbook, 
+this approach force to write unpredictable algorithms and doesn't work because often we are interested only in a subset 
+of all cells. So main idea, is to identify a subset of areas of interest, defines as *working areas*
 and focus only on these, so with minimum changes to an existent sheet, the parser can handle it and produce 
 useful information. If you can apply some simple 
-[ rules](https://raw.githubusercontent.com/glaucouri/xltoy/main/rules.md)
+[rules](https://raw.githubusercontent.com/glaucouri/xltoy/main/rules.md)
 you are ready to go!
 
 This is an example of a common forecasting model that can be well handled by XLtoy.
