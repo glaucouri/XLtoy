@@ -4,13 +4,16 @@
 
 
 ## XLtoy: 
+
 The ultimate toolkit for Microsoft Excel modelers and mod-operations. 
 
 #### The name
+
 *XLtoy* it's a word pun that starts from *exel to py* concept, but the *p* seem superfluous here and *xlto(p)y* became 
 XLtoy, more funny.
 
 ### Description
+
 XLtoy framework can read, parse, diff, validate, manage changes and run out of the box complicated models written 
 using Microsoft Excel. Not all features are ready now, but the development plan is show below.
 This tool is suitable for modelers who need change management tools, for example in a collaborative environment,
@@ -61,8 +64,8 @@ Commands:
 ### Documentation
  
 
-[working rules](https://raw.githubusercontent.com/glaucouri/xltoy/main/rules.md)
-[Tutorial](https://raw.githubusercontent.com/glaucouri/xltoy/main/tutorial.md)
+* [working rules](https://raw.githubusercontent.com/glaucouri/xltoy/main/rules.md)
+* [Tutorial](https://raw.githubusercontent.com/glaucouri/xltoy/main/tutorial.md)
 
 
 
