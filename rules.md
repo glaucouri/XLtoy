@@ -15,4 +15,11 @@
   
 * Model must be a range of one column or row, optionally aligned with names range. Aligned means that ranges must start
   from same position and must have the same shape. With this technique, each names is coupled to his equation. If names
-  range is not given equation will be named as sequence of anon_* names.    
+  range is not given equation will be named as sequence of anon_* names.
+  
+  
+  
+#### Not handled syntax   
+Not all syntax are available, here some unhandled examples:
+
+- *+ [eg: 0*+len(A3)] 

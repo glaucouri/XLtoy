@@ -1,7 +1,7 @@
 # inspired to: excelExpr by Paul McGuire
 from openpyxl.utils.cell import coordinate_to_tuple
 from . import log
-from .utils import de_dollar
+from .utils import de_dollar, split_sheet_coordinates
 from pyparsing import (
     CaselessKeyword, Word, alphas, alphanums, nums, Optional, Group, oneOf, Forward,
     infixNotation, opAssoc, dblQuotedString, delimitedList, Combine, Literal, QuotedString, ParserElement,
@@ -58,9 +58,11 @@ class Parser:
         maxFunc = stat_function("max")
         aveFunc = stat_function("ave")
         sqrFunc = stat_function("sqrt")
+        lenFunc = stat_function("sqrt")
+        randFunc= Group(CaselessKeyword("rand")+LPAR+RPAR)
         unknowFunc = words + Group(LPAR + expr + RPAR)
 
-        funcCall = ifFunc | sumFunc | minFunc | maxFunc | aveFunc | sqrFunc | unknowFunc
+        funcCall = ifFunc | sumFunc | minFunc | maxFunc | aveFunc | sqrFunc | lenFunc | randFunc | unknowFunc
 
         numericLiteral = ppc.number
         operand = numericLiteral | funcCall | cellRange | cellRef
@@ -116,7 +118,7 @@ class Parser:
             tok = tok[0]
             if '!' in tok:
                 # maybe from other sheet!
-                sheet, f_tok = tok.split('!')
+                sheet, f_tok = split_sheet_coordinates(tok)
                 if sheet != self.current_sheet:
                     log.warning(f"In sheet {self.current_sheet} cell {tok} found input from external sheet. Treated as exogenous value")
                     val = self.collector.wb_data[sheet][f_tok].value

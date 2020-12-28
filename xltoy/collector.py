@@ -222,6 +222,7 @@ class Collector:
                     sheet_names = set([x.parent.title for x in cells])
                     if len(sheet_names) > 1:
                         raise NotImplementedError("Range defined on multiple sheets is not handled")
+
                     sheet_name = sheet_names.pop()
                     if use_data:
                         coll[sheet_name] = {self.to_relative(lbl,x)
@@ -252,7 +253,6 @@ class Collector:
             return s
 
         log.debug('Parsing {} {} {}'.format(sheet, position, s))
-        # In case of anonymous sheet we must force
         self.parser.set_current(sheet, coordinate_to_tuple(position))
         ret = self.parser.transform(s)
         log.debug('Parsed {}'.format(ret))
