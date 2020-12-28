@@ -32,14 +32,16 @@ def cli():
 @click.option('--data', is_flag=True, help='Collect only data, it will ignore formulas')
 @click.option('-v', '--verbose', count=True, help="verbose output (repeat for increased verbosity)")
 @click.option('--add_fingerprint', is_flag=True, help='Add metadata under section xltoy')
+@click.option('--parsed', is_flag=True, help='Parse formulas and use this version instead of excel syntax')
 @click.argument('filename')
 def collect(filename, **kwargs):
     set_verb(kwargs.get('verbose'))
-    click.echo('Collect an excel')
     with timeit("{} collect".format(filename), kwargs.get('timeit')):
         c = Collector(filename,
                       only_data=kwargs.get('data'),
-                      add_fingerprint=kwargs.get('add_fingerprint'))
+                      parsed=kwargs.get('parsed'),
+                      add_fingerprint=kwargs.get('add_fingerprint'),
+                      )
         if kwargs.get('yaml'):
             print(c.to_yaml())
 
@@ -50,6 +52,7 @@ def collect(filename, **kwargs):
 @click.option('--relative', is_flag=True, help='Areas are handled as relative, each starts from row1,col1')
 @click.option('-v', '--verbose', count=True, help="verbose output (repeat for increased verbosity)")
 @click.option('--add_fingerprint', is_flag=True, help='Add metadata under section xltoy')
+@click.option('--parsed', is_flag=True, help='Parse formulas and use this version instead of excel syntax')
 @click.argument('filename1')
 @click.argument('filename2')
 def diff(filename1, filename2, **kwargs):
@@ -58,6 +61,7 @@ def diff(filename1, filename2, **kwargs):
         d = DiffCollector(filename1,filename2,
                           only_data=kwargs.get('data'),
                           relative=kwargs.get('relative'),
+                          parsed=kwargs.get('parsed'),
                           add_fingerprint=kwargs.get('add_fingerprint'))
         d.to_yaml()
 

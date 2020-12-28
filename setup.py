@@ -1,8 +1,11 @@
 import setuptools
 from xltoy import version
 
-with open("README.md", "r") as fh:
+with open("README.md", "rt") as fh:
     long_description = fh.read()
+
+with open("requirements.txt",'rt') as fn:
+    reqs = fn.read().split()
 
 setuptools.setup(
     name="xltoy",
@@ -27,6 +30,7 @@ setuptools.setup(
         "Intended Audience :: Information Technology",
     ],
     python_requires='>=3.6',
+    install_requires = reqs,
     entry_points={
             'console_scripts': [
                 'xltoy = scripts.cmd:cli'

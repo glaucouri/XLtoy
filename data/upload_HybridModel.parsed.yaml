@@ -1,0 +1,6 @@
+Sheet1:
+  S: =S[T-1]+S[T-1]*(rf[T]-rf[T-5])*S[T-9]+S[T-1]*rf[T-6]*VS[T-1]*sqrt(S[T-9])
+  VS: =rf[T-4]
+  Vrf: =rf[T-4]
+  rf: =rf[T-1]+rf[T-9]*(rf[T-8]-rf[T-1])*S[T-9]+rf[T-7]*Vrf[T-1]*sqrt(S[T-9])
+

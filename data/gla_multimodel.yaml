@@ -1,0 +1,11 @@
+Foglio1:
+  V1: =(D8-D$3)*D$4
+  V2: =(E8-E$3)*E$4+0.02*B10+0.003*C8
+  V3: =(F8-F$3)*F$4+$F$5*MAX(D10,E10)
+  X1: 1
+  X2: 1
+Foglio2:
+  K1: =B8+Foglio1!F8
+  K2: =D8+B8
+  X2: =Foglio1!B8
+

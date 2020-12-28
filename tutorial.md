@@ -48,3 +48,12 @@ In second workbook range was moved to another position
 ```
 
 So in relative mode, no difference found
+
+
+
+#### case 3: forecastimg model
+
+This is an example of a common forecasting model that can be well handled by XLtoy.
+![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/simple_model.png?raw=true)
+Green cells contain actual (or hystorical) values, model in salmon for the first calculated step,
+and in yellow dragged cells, the rest of the model. 

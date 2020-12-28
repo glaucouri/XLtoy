@@ -9,37 +9,48 @@ The ultimate toolkit for Microsoft Excel modelers and mod-operations.
 
 #### The name
 
-*XLtoy* it's a word pun that starts from *exel to py* concept, but the *p* seem superfluous here and *xlto(p)y* became 
+*XLtoy* it's a word pun that starts from **exel to py** concept, but the *p* seem superfluous here and *xlto(p)y* became 
 XLtoy, more funny.
 
 ### Description
 
-XLtoy framework can read, parse, diff, validate, manage changes and run out of the box complicated models written 
-using Microsoft Excel. Not all features are ready now, but the development plan is show below.
-This tool is suitable for modelers who need change management tools, for example in a collaborative environment,
-is useful know what's changed in data of formulas. No less, dev-ops (od mod-ops) than need an instrument to identify 
-uniquely model, data, and changes on each delivery.
---- 
 After many year in this field, i found that is too difficult, and often useless, to analyze an entire workbook, 
-this approach force to write unpredictable algorithms and doesn't work because often we are interested only in a subset 
-of all cells. So main idea, is to identify a subset of areas of interest, defines as *working areas*
-and focus only on these, so with minimum changes to an existent sheet, the parser can handle it and produce 
-useful information. If you can apply some simple 
-[rules](https://raw.githubusercontent.com/glaucouri/xltoy/main/rules.md)
+this approach force to write unpredictable an inefficient algorithms and doesn't work because often we are interested only in a subset 
+of all cells. So main idea, is to identify a subset of areas of interest, defined as *working areas*
+and focus XLtoy only on these, so with minimum changes to an existent sheet, the parser can handle it and produce 
+useful information. If you can apply some **simple 
+[rules](https://raw.githubusercontent.com/glaucouri/xltoy/main/rules.md)**
 you are ready to go!
 
-This is an example of a common forecasting model that can be well handled by XLtoy.
-![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/simple_model.png?raw=true)
-Green cells contain actual (or hystorical) values, model in salmon for the first calculated step,
-and in yellow dragged cells, the rest of the model. 
+**So ?**
+
+XLtoy framework can read, parse, diff, validate, manage changes and run out of the box complicated models written 
+using Microsoft Excel. Not all features are ready up to now, but the development plan is show below.
+
+This tool is useful for users that write, share, maintain and deploy models written in Excel. Many kind of model are 
+well handled by XLtoy:
+- validation models
+- rule based models
+- financial models
+- forecasting models
+
+In a collaborative environment, for example, a change management tools, can save a lot of time and money, comparing two version 
+is useful know what's changed in the data or formulas. No less, dev-ops (od mod-ops) than need an instrument to identify 
+uniquely model, data, and changes on each delivery. Model differ can identify precisely which and where are the differences 
+using syntactic or semantic algorithm.
 
 ### Installation
 It's strongly suggested to use virtualenv:
-
 ```
 >pip3 install virtualenv
 >python3 -m venv XLtoy_pyenv
 >source XLtoy_pyenv/bin/activate
+```
+
+```
+>pip install xltoy
+
+# Or from source:
 
 >git clone https://github.com/glaucouri/XLtoy.git
 >cd XLtoy/
@@ -92,17 +103,20 @@ with the release of first version i will need feedback, use cases and tester.
 * it define [working rules](https://raw.githubusercontent.com/glaucouri/xltoy/main/rules.md)
 * fully testes with py3.6 to py3.8
 * collector can read data,formulas and can show an entire workbook as yaml or json.
-* **diff** works with data and formulas too, it can compare 2 workbook or a representation of it yaml or json.
+* **diff** works with data and formulas too, it can compare 2 workbook or a representation of it yaml 
+or json.
+* with fingerprint option model can be marked (like a md5 for a file)
 
 #### Version 0.2: parser feature:
 * parser can understand excel formula (probably not all syntax)
 * in memory graph representation with all relation between equations.
 * can find all predecessors and successors of a given equation.
 * models can be exported as graph or python code.
+* execution of python version can be done in a notebook or a stand alone env.
 
 #### Version 0.3: executor feature:
 * data can be stored as pandas DataFrame
-* models can be executed on external data. Binding feature.
+* models can be binded to external data. Binding feature. and can be run on huge data set.
 
-#### Version X: big data feature:
+#### Version 0.4: big data feature:
 * model can be distributed on a spark cluster and executed in order to work on big data

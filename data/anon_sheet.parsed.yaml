@@ -1,0 +1,13 @@
+Sheet1:
+  anon_1: =(anon_1[T-1]+anon_1[T-2])/2
+  anon_10: =LOG(anon_9[T])
+  anon_11: =LOG(anon_9[T])
+  anon_2: =(anon_2[T-1]+anon_2[T-2])/2
+  anon_3: =(anon_3[T-1]+anon_3[T-2])/2
+  anon_4: =(anon_4[T-1]+anon_4[T-2])/2
+  anon_5: =if(anon_5[T-2],anon_5[T-2]+anon_5[T-1],anon_5[T-2]-anon_5[T-1])
+  anon_6: =RAND()
+  anon_7: =anon_7[T-1]*0.023
+  anon_8: =8
+  anon_9: =12
+
