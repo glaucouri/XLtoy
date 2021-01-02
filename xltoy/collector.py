@@ -253,7 +253,7 @@ class Collector:
             return s
 
         log.debug('Parsing {} {} {}'.format(sheet, position, s))
-        self.parser.set_current(sheet, coordinate_to_tuple(position))
+        self.parser.set_current(sheet, position)
         ret = self.parser.transform(s)
         log.debug('Parsed {}'.format(ret))
         return ret
