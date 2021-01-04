@@ -59,24 +59,24 @@ This exercise was done using data from *https://data.world/* a free datasources 
 
 It contains >3M cells.
 
-**Procedure:** 
-1) Download [Air_Quality_Measures_on_the_National_Environmental_Health_Tracking_Network.csv](https://query.data.world/s/aci46g2wmbpn5egnve7nj3aikoqw2m)
-2) Set the **data working area** and save the file as *Air_Quality.xlsx*
-3) Now this file was considered as the referrer file so we can store it in an 
-efficient representation using *xltoy collect*
-4) Make some changes, add and remove cells are allowed too. and save this version as *Air_Quality2.xlsx*
-5) Use *xltoy diff* to find differences.
+**Procedure in 5 steps:** 
+1. Download [Air_Quality_Measures_on_the_National_Environmental_Health_Tracking_Network.csv](https://query.data.world/s/aci46g2wmbpn5egnve7nj3aikoqw2m)
+2. Set the **data working area** and save the file as *Air_Quality.xlsx*
+3. Now this file was considered as the referrer file so we can store it in an 
+   efficient representation using *xltoy collect*
+4. Make some changes, add and remove cells are allowed too. and save this version as *Air_Quality2.xlsx*
+5. Use *xltoy diff* to find differences.
 
 in practice:
 
-> 1) wget https://query.data.world/s/aci46g2wmbpn5egnve7nj3aikoqw2m  -O Air_Quality.csv
-> 2) (excel) <open with Excel and set data range>
-> 3) xltoy collect Air_Quality.xlsx --data --json -vvv > Air_Quality.json
-![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/data_collect.gif?raw=true)
-> 4) (excel) <Simulate some change in a new file> 
-> 5) xltoy diff Air_Quality.json Air_Quality2.xlsx --timeit -vvv
-![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/data_diff.gif?raw=true)
-``` 
+1. `wget https://query.data.world/s/aci46g2wmbpn5egnve7nj3aikoqw2m  -O Air_Quality.csv`
+2. (excel) <open with Excel and set data range>
+3. `xltoy collect Air_Quality.xlsx --data --json -vvv > Air_Quality.json`
+   ![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/data_collect.gif?raw=true)
+4. (excel) <Simulate some change in a new file> 
+5. `xltoy diff Air_Quality.json Air_Quality2.xlsx --timeit -vvv`
+   ![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/data_diff.gif?raw=true)
+
 
 at the point 4) I've changed 2 cells randomly and the result og point 5) was:
 
@@ -87,8 +87,8 @@ change:
     N218636: 0 -> 1
 ```
 
-It means, that **change** was found in sheet **Air_Quality**
-two cells involved: **H146162** and **N218636**
+It means, that *change* was found in sheet *Air_Quality*
+two cells involved: *H146162* and *N218636*
 
 It took:
 
