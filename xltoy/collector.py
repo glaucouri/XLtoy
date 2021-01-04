@@ -1,16 +1,19 @@
 from os.path import isfile
 from datetime import datetime
 from collections import defaultdict
+from itertools import chain
 from openpyxl import load_workbook
 from openpyxl.worksheet.cell_range import CellRange
 from openpyxl.utils.cell import coordinate_to_tuple
 from openpyxl.cell import Cell
 from . import log, version
-from .utils import is_vertical_range
+from .utils import is_vertical_range, timeit, de_dollar
 from .parser import Parser
 
 import re
+import io
 import yaml
+import ujson
 import dictdiffer
 
 ANON_PRFX = 'anon_'
@@ -68,60 +71,70 @@ class Collector:
         # workbook injestion, we need 2 instances: data and formulas
         # if only_data is true each point to the same instance.
 
-        self.wb_data = load_workbook(filename=self.url, data_only=True)
-        if only_data:
-            self.wb = self.wb_data
-        else:
-            self.wb = load_workbook(filename=self.url)
+        with open(self.url, "rb") as f:
+            in_mem_file = io.BytesIO(f.read())
+
+        with timeit("load workbook"):
+            self.wb_data = load_workbook(in_mem_file, data_only=True, read_only=True)
+            if only_data:
+                self.wb = self.wb_data
+            else:
+                self.wb = load_workbook(in_mem_file, read_only=True)
         self.relative = relative
         self.add_fingerprint = add_fingerprint
 
-        self.sheetnames = self.wb_data.sheetnames
-        self.named_ranges = self.wb_data.defined_names.definedName
-        self.set_ranges()
+        with timeit("set ranges"):
+            self.sheetnames = self.wb_data.sheetnames
+            self.named_ranges = self.wb_data.defined_names.definedName
+            self.set_ranges()
 
-        self.labels = self.handle_range(
-            self.label_names,
-            self.labels_as_data)
+        with timeit("labels handler"):
+            self.labels = self.handle_range(
+                self.label_names,
+                self.labels_as_data)
+
 
         # Here we have collected only labels, so if parsed is True
         # we need a data structure for bind position of formula to his label
         self.sheet_is_vertical = {}
         if self.parsed:
-            # models pre-scan, this solves the anonymous models problems.
-            # we don't know if they are vertical or horizontal
-            self.models = self.handle_range(
-                self.model_names,
-                True)
+            with timeit("parsing"):
+                # models pre-scan, this solves the anonymous models problems.
+                # we don't know if they are vertical or horizontal
+                self.models = self.handle_range(
+                    self.model_names,
+                    True)
 
-            self.find_anonymous_models()
+                self.find_anonymous_models()
 
-            self.pos_to_label = defaultdict(lambda: {})
-            for sheet,rng in self.labels.items():
-                if sheet not in self.sheet_is_vertical:
-                    is_vert = is_vertical_range(rng.keys())
-                    self.sheet_is_vertical[sheet] = is_vert
-                else:
-                    is_vert = self.sheet_is_vertical[sheet]
-                for coord, label in rng.items():
-                    row, col = coordinate_to_tuple(coord)
-                    self.pos_to_label[sheet][col if is_vert else row] = label
+                self.pos_to_label = defaultdict(lambda: {})
+                for sheet,rng in self.labels.items():
+                    if sheet not in self.sheet_is_vertical:
+                        is_vert = is_vertical_range(rng.keys())
+                        self.sheet_is_vertical[sheet] = is_vert
+                    else:
+                        is_vert = self.sheet_is_vertical[sheet]
+                    for coord, label in rng.items():
+                        row, col = coordinate_to_tuple(coord)
+                        self.pos_to_label[sheet][col if is_vert else row] = label
 
-            self.parser = Parser(collector=self)
+                self.parser = Parser(collector=self)
 
-            self.models = self.handle_range(
-                self.model_names,
-                self.models_as_data)
+                self.models = self.handle_range(
+                    self.model_names,
+                    self.models_as_data)
         else:
-            self.models = self.handle_range(
-                            self.model_names,
-                            self.models_as_data)
+            with timeit("models handler"):
+                self.models = self.handle_range(
+                                self.model_names,
+                                self.models_as_data)
 
-            self.find_anonymous_models()
+                self.find_anonymous_models()
 
-        self.data = self.handle_range(
-                      self.data_names,
-                      use_data=True)
+        with timeit("data handler"):
+            self.data = self.handle_range(
+                          self.data_names,
+                          use_data=True)
 
         self.set_pseudo_excel()
 
@@ -174,18 +187,33 @@ class Collector:
                     if useless_range(rng):
                         log.debug("{} range [{}]in sheet {} discarded ".format(x.name,rng,sheet))
                         continue
-                    try:
-                        cells = self.wb_data[sheet][rng]
-                    except KeyError as err:
-                        log.error(err)
-                        continue
 
-                    if isinstance(cells,Cell):
-                        # Single named cell
-                        self.ranges[x.name] = (cells,)
-                    else:
-                        # Range named
-                        self.ranges[x.name] = sum(cells, ())
+                    with timeit(f"set ranges for {sheet} {rng}"):
+                        try:
+                            cells = self.wb_data[sheet][rng]
+                        except KeyError as err:
+                            log.error(err)
+                            continue
+
+                        if isinstance(cells, Cell):
+                            # Single named cell
+                            self.ranges[x.name] = (cells,)
+                        else:
+                            # Range named
+                            self.ranges[x.name] = [x for x in chain(*cells)]
+
+                    # with timeit("iter row ranges"):
+                    #     start, end = rng.split(':')
+                    #     X = dict.fromkeys(CellRange(rng).cells)
+                    #     self.ranges[x.name] = X
+                    #     rows = self.wb_data[sheet].rows
+                    #     for row in rows:
+                    #         for cell in row:
+                    #             coordinate = (cell.row, cell.column)
+                    #             if coordinate in X:
+                    #                 X[coordinate] = cell
+                    #     self.ranges[x.name] = X.values()
+
 
         log.debug("{} named ranges collected".format(len(self.ranges)))
         log.debug("{} parameters collected".format(len(self.params)))
@@ -282,18 +310,34 @@ class Collector:
         self.set_pseudo_excel()
         return yaml.dump(self.pseudo)
 
+    def to_json(self):
+        self.set_pseudo_excel()
+        return ujson.dumps(self.pseudo)
+
 
 class YamlCollector(Collector):
     """
     Collector for yaml format, it is used only to set
     self.pseudo attribute.
     """
-    def __init__(self, url):
+    def __init__(self, url, **_):
         if not isfile(url):
             raise FileNotFoundError("File {} does not exists".format(url))
 
-        with open(url) as fin:
+        with open(url,'rt') as fin:
             self.pseudo = yaml.load(fin, Loader=yaml.FullLoader)
+
+class JsonCollector(Collector):
+    """
+    Collector for json format, it is used only to set
+    self.pseudo attribute.
+    """
+    def __init__(self, url, **_):
+        if not isfile(url):
+            raise FileNotFoundError("File {} does not exists".format(url))
+
+        with open(url, 'rt') as fin:
+            self.pseudo = ujson.load(fin)
 
 
 
@@ -310,13 +354,23 @@ class DiffCollector:
         :param parsed: use parsed formaulas instead of excel version
         :param add_fingerprint:
         """
-        c1,c2 = [YamlCollector(url)
-                 if url.lower().endswith('yaml')
-                 else Collector(url,only_data=only_data, relative=relative,
-                                    add_fingerprint=add_fingerprint, parsed=parsed)
-                 for url in [url1,url2]]
+        def factory(url):
+            if url.lower().endswith('.yaml'):
+                return YamlCollector
 
-        self.iter_differs = dictdiffer.diff(c1.pseudo,c2.pseudo)
+            if url.lower().endswith('.json'):
+                return JsonCollector
+
+            return Collector
+        pars = dict(only_data=only_data, relative=relative, add_fingerprint=add_fingerprint, parsed=parsed)
+        with timeit(f"load {url1}"):
+            c1 = factory(url1)(url1,**pars)
+
+        with timeit(f"load {url2}"):
+            c2 = factory(url2)(url2,**pars)
+
+        with timeit("making diff"):
+            self.iter_differs = dictdiffer.diff(c1.pseudo,c2.pseudo)
         self.do_diff()
 
     def do_diff(self):
@@ -343,4 +397,8 @@ class DiffCollector:
     def to_yaml(self):
         if self.diff:
             print(yaml.dump(self.diff))
+
+    def to_json(self):
+        if self.diff:
+            print(ujson.dumps(self.diff))
 

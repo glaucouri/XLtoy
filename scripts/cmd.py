@@ -9,11 +9,12 @@ from xltoy import *
 
 def set_verb(v=0):
     """
+    Set logging verbosity
 
     :param v:  verbosity 1:WARNING,
                          2:INFO,
                          3+:DEBUG
-    :return: Nothing,but logging verbosisty was set
+    :return: Nothing, but logging verbosity was set
     """
     if v>2:
         log.setLevel(DEBUG)
@@ -28,7 +29,8 @@ def cli():
 
 @click.command()
 @click.option('--timeit', is_flag=True, help='Print out how many times it takes for the task')
-@click.option('--yaml', is_flag=True, help='Print out the yaml hiearchical view')
+@click.option('--yaml', is_flag=True, help='Print out the yaml hierarchical view')
+@click.option('--json', is_flag=True, help='Print out the json hierarchical view')
 @click.option('--data', is_flag=True, help='Collect only data, it will ignore formulas')
 @click.option('-v', '--verbose', count=True, help="verbose output (repeat for increased verbosity)")
 @click.option('--add_fingerprint', is_flag=True, help='Add metadata under section xltoy')
@@ -42,8 +44,14 @@ def collect(filename, **kwargs):
                       parsed=kwargs.get('parsed'),
                       add_fingerprint=kwargs.get('add_fingerprint'),
                       )
+
         if kwargs.get('yaml'):
-            print(c.to_yaml())
+            with timeit("pseudo to yaml"):
+                print(c.to_yaml())
+
+        elif kwargs.get('json'):
+            with timeit("pseudo to json"):
+                print(c.to_json())
 
 
 @click.command()
@@ -53,6 +61,7 @@ def collect(filename, **kwargs):
 @click.option('-v', '--verbose', count=True, help="verbose output (repeat for increased verbosity)")
 @click.option('--add_fingerprint', is_flag=True, help='Add metadata under section xltoy')
 @click.option('--parsed', is_flag=True, help='Parse formulas and use this version instead of excel syntax')
+@click.option('--json', is_flag=True, help='Print out in json format instead of default YAML')
 @click.argument('filename1')
 @click.argument('filename2')
 def diff(filename1, filename2, **kwargs):
@@ -63,7 +72,10 @@ def diff(filename1, filename2, **kwargs):
                           relative=kwargs.get('relative'),
                           parsed=kwargs.get('parsed'),
                           add_fingerprint=kwargs.get('add_fingerprint'))
-        d.to_yaml()
+        if kwargs.get('json'):
+            d.to_json()
+        else:
+            d.to_yaml()
 
 cli.add_command(collect)
 cli.add_command(diff)

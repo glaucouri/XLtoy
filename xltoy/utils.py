@@ -3,12 +3,14 @@ from openpyxl.cell.cell import Cell
 from openpyxl.utils.cell import coordinate_to_tuple
 from openpyxl.workbook.defined_name import SHEETRANGE_RE
 from time import time
+from . import log
 
 
 @contextmanager
 def timeit(description: str, enabled:bool=False) -> None:
     """
     Generic Context manager  simple Timeit
+    If enabled it print to stdout, anyway log is grabbed in debug
 
     :param description:
     :param enabled:
@@ -17,9 +19,10 @@ def timeit(description: str, enabled:bool=False) -> None:
     t0 = time()
     yield
     ellapsed_time = time() - t0
-
+    msg = f"{description} done in {ellapsed_time:.3f} sec."
     if enabled:
-        print(f"{description} done in {ellapsed_time:.3f} s.")
+        print(msg)
+    log.debug(msg)
 
 
 def de_dollar(s:str)-> str:
