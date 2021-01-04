@@ -5,7 +5,7 @@ from itertools import chain
 from openpyxl import load_workbook
 from openpyxl.worksheet.cell_range import CellRange
 from openpyxl.utils.cell import coordinate_to_tuple
-from openpyxl.cell import Cell
+from openpyxl.cell import Cell, ReadOnlyCell
 from . import log, version
 from .utils import is_vertical_range, timeit, de_dollar
 from .parser import Parser
@@ -195,7 +195,7 @@ class Collector:
                             log.error(err)
                             continue
 
-                        if isinstance(cells, Cell):
+                        if isinstance(cells, (Cell, ReadOnlyCell)):
                             # Single named cell
                             self.ranges[x.name] = (cells,)
                         else:
