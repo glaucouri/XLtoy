@@ -55,7 +55,7 @@ So in relative mode, no difference found
 
 This exercise was done using data from *https://data.world/* a free datasources provider.
 
-*[data source](https://tinyurl.com/ybhqd8g9*
+[data source](https://tinyurl.com/ybhqd8g9)
 
 It contains >3M cells.
 
@@ -70,10 +70,10 @@ It contains >3M cells.
 in practice:
 
 1. `wget https://query.data.world/s/aci46g2wmbpn5egnve7nj3aikoqw2m  -O Air_Quality.csv`
-2. (excel) <open with Excel and set data range>
+2. `(excel) <open with Excel and set data range>`
 3. `xltoy collect Air_Quality.xlsx --data --json -vvv > Air_Quality.json`
    ![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/data_collect.gif?raw=true)
-4. (excel) <Simulate some change in a new file> 
+4. `(excel) <Simulate some change in a new file>` 
 5. `xltoy diff Air_Quality.json Air_Quality2.xlsx --timeit -vvv`
    ![xlsample](https://github.com/glaucouri/xltoy/raw/main/img/data_diff.gif?raw=true)
 
