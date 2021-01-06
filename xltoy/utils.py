@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 from openpyxl.cell.cell import Cell
-from openpyxl.utils.cell import coordinate_to_tuple
+from openpyxl.utils.cell import coordinate_to_tuple, get_column_letter
 from openpyxl.workbook.defined_name import SHEETRANGE_RE
 from time import time
 from . import log
@@ -59,9 +59,8 @@ def is_vertical_range(rng:list)->bool:
             raise ValueError("Cannot recognize if {} is horizontal model range")
 
 
-def split_sheet_coordinates(s):
+def split_sheet_coordinates(s:str):
     """
-
     :param s:
     :return:
     """
@@ -71,3 +70,13 @@ def split_sheet_coordinates(s):
     else:
         match = match.groupdict()
         return match['quoted'] or match['notquoted'] , match['cells']
+
+def tuple_to_coordinate(row:int,col:int) -> str:
+    """
+    convert tuple notation to excel coordinate
+
+    :param row:  numeric
+    :param col:  numeric
+    :return:  string e.g. 'A3'
+    """
+    return f'{get_column_letter(col)}{row}'

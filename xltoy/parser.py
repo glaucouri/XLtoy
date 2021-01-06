@@ -1,4 +1,5 @@
 # inspired to: excelExpr by Paul McGuire
+from collections import defaultdict
 from openpyxl.utils.cell import coordinate_to_tuple
 from . import log
 from .utils import de_dollar
@@ -47,12 +48,12 @@ class Parser:
         ifFunc = (
                 CaselessKeyword("if")
                 + LPAR
-                + Group(condExpr)("condition")
+                + Combine(condExpr)("condition")
                 + COMMA
-                + Group(expr)("if_true")
+                + Combine(expr)("if_true")
                 + COMMA
-                + Group(expr)("if_false")
-                + RPAR)
+                + Combine(expr)("if_false")
+                + RPAR).setParseAction(self.ternary_if_action)
 
         # Functions
         def stat_function(name, obj=expr, empty=False):
@@ -121,6 +122,8 @@ class Parser:
         self.current_row, self.current_col = coordinate_to_tuple(position)
         self.current_pos_to_label = self.collector.pos_to_label[sheet]
         self.current_sheet_is_vertical = self.collector.sheet_is_vertical[sheet]
+        if self.collector.graph is not None:
+            self.current_edges = defaultdict(set)
 
     def logic_operation(self, tok):
         if tok[0] == 'and':
@@ -143,6 +146,17 @@ class Parser:
         if tok.op == '=':
             return '=='
 
+    def ternary_if_action(self,tok) -> str:
+        """
+        if(C2[T]>0,C1[T],C1[T]/2)
+        will  be
+        C1[T] if C2[T]>0 else C1[T]/2
+
+        :param tok:
+        :return:
+        """
+        return '({tok.if_true[0]}) if ({tok.condition[0]}) else ({tok.if_false[0]})'.format(tok=tok)
+
     def cell_action(self, tok):
         """
         over all token occurrence we do transliteration action!
@@ -164,7 +178,7 @@ class Parser:
             if sheet:
                 # maybe from other sheet!
                 if sheet != self.current_sheet:
-                    log.warning(f"In sheet {self.current_sheet} cell {self.current_cell} token {tok} read input from external sheet. Treated as exogenous value")
+                    log.info(f"In sheet {self.current_sheet} cell {self.current_cell} token {tok} read input from external sheet. Treated as exogenous value")
                     val = self.collector.wb_data[sheet][position].value
                     return val
 
@@ -178,7 +192,9 @@ class Parser:
                 return val
 
             delta_time = row-self.current_row if self.current_sheet_is_vertical else col-self.current_col
+            self.current_edges[label].add(delta_time)
             if delta_time:
                 return("{}[T{}]".format(label,delta_time))
             else:
                 return("{}[T]".format(label))
+

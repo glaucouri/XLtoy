@@ -1,22 +1,24 @@
+import re
+import io
+import yaml
+import ujson
+import networkx
+import dictdiffer
 from os.path import isfile
 from datetime import datetime
 from collections import defaultdict
 from itertools import chain
 from openpyxl import load_workbook
 from openpyxl.worksheet.cell_range import CellRange
-from openpyxl.utils.cell import coordinate_to_tuple
-from openpyxl.cell import Cell, ReadOnlyCell
+from openpyxl.utils.cell import coordinate_to_tuple, get_column_letter
+from openpyxl.cell import Cell
+from openpyxl.cell.read_only import ReadOnlyCell, EmptyCell
 from . import log, version
-from .utils import is_vertical_range, timeit, de_dollar
+from .utils import is_vertical_range, timeit, de_dollar, tuple_to_coordinate
 from .parser import Parser
 
-import re
-import io
-import yaml
-import ujson
-import dictdiffer
-
 ANON_PRFX = 'anon_'
+tree = lambda: defaultdict(tree)
 
 def useless_range(rng):
     """
@@ -40,7 +42,7 @@ class Collector:
     data_names = [re.compile('^data', re.IGNORECASE)]
 
     def __init__(self, url:str, only_data:bool=False, relative:bool=False, add_fingerprint:bool=False,
-                 parsed:bool=False):
+                 parsed:bool=False, use_graph:bool=True):
         """
         Data injestion, we need 2 instances of the sheet:
           - wb_data: with static data
@@ -51,6 +53,8 @@ class Collector:
         :param parsed: use parsed formaulas instead of excel version
         :param add_fingerprint: add some punctual information in the internal representation
         :param relative: all area are treated as if they starts from Row1 Col1
+        :param use_graph: Initialize and collect the topology of all parsed models default:True
+                          available only with parsed=True
         """
         if not isfile(url):
             raise FileNotFoundError("File {} does not exists".format(url))
@@ -60,6 +64,14 @@ class Collector:
         self.url = url
         self.anon_models = {}
         self.parsed = parsed
+        if use_graph and parsed:
+            self.edges = tree() # temporary data structure for edges
+            self.graph = networkx.DiGraph(
+                              creator='XLtoy',
+                              version=version,
+                              datetime=datetime.now().isoformat())
+        else:
+            self.graph = None
 
         self.labels_as_data = True
         self.models_as_data = only_data
@@ -137,8 +149,13 @@ class Collector:
                           use_data=True)
 
         self.set_pseudo_excel()
+        self.set_graph()
 
 
+
+    @property
+    def has_graph(self):
+        return self.graph is not None
 
     def find_anonymous_models(self):
         """
@@ -176,6 +193,7 @@ class Collector:
         self.ranges = {}
         self.text_ranges = {}
         self.params = {}
+        self.raw_cells_coordinates = {}
 
         for x in self.named_ranges:
             for sheet, rng in x.destinations:
@@ -195,25 +213,14 @@ class Collector:
                             log.error(err)
                             continue
 
-                        if isinstance(cells, (Cell, ReadOnlyCell)):
+                        if isinstance(cells, (Cell, ReadOnlyCell, EmptyCell)):
                             # Single named cell
                             self.ranges[x.name] = (cells,)
                         else:
                             # Range named
                             self.ranges[x.name] = [x for x in chain(*cells)]
 
-                    # with timeit("iter row ranges"):
-                    #     start, end = rng.split(':')
-                    #     X = dict.fromkeys(CellRange(rng).cells)
-                    #     self.ranges[x.name] = X
-                    #     rows = self.wb_data[sheet].rows
-                    #     for row in rows:
-                    #         for cell in row:
-                    #             coordinate = (cell.row, cell.column)
-                    #             if coordinate in X:
-                    #                 X[coordinate] = cell
-                    #     self.ranges[x.name] = X.values()
-
+                        self.raw_cells_coordinates[x.name] = tuple(CellRange(rng).cells)
 
         log.debug("{} named ranges collected".format(len(self.ranges)))
         log.debug("{} parameters collected".format(len(self.params)))
@@ -238,30 +245,43 @@ class Collector:
         iter over collected ranges and restructure all data in a confortable nested dict.
         coll[<sheet_name>] = {..}
 
+        EmptyCell are handled in the same manner, they don't change the shape of the range
+        but value will be None
+
         :param labels: list of RE to use to undestand type of range
         :param use_data: Use data or formulas.
         :return: collection of all collected cells
+
         """
         coll = {}
         for lbl in self.ranges:
             for check_valid in labels:
                 if check_valid.match(lbl):
                     cells = self.ranges[lbl]
-                    sheet_names = set([x.parent.title for x in cells])
+                    raw_coordinate = self.raw_cells_coordinates[lbl]
+
+                    #Cross sheet ranges are bad!
+                    sheet_names = set([x.parent.title for x in cells if not isinstance(x,EmptyCell)])
                     if len(sheet_names) > 1:
                         raise NotImplementedError("Range defined on multiple sheets is not handled")
 
                     sheet_name = sheet_names.pop()
-                    if use_data:
-                        coll[sheet_name] = {self.to_relative(lbl,x)
-                                            if self.relative
-                                            else x.coordinate:x.value
-                                            for x in cells}
-                    else:
-                        coll[sheet_name] = {self.to_relative(lbl,x)
-                                            if self.relative
-                                            else x.coordinate:self.load_formula(sheet_name,  x.coordinate,  self.wb[sheet_name][x.coordinate].value)
-                                            for x in cells}
+                    coll[sheet_name] = {}
+                    for coordinate_as_tuple, x in zip(raw_coordinate, cells):
+                        if isinstance(x, EmptyCell):
+                            coordinate = tuple_to_coordinate(*coordinate_as_tuple)
+                        else:
+                            coordinate = x.coordinate
+                        k = self.to_relative(lbl, x) if self.relative else coordinate
+                        if use_data:
+                            v = x.value
+                        else:
+                            v = self.load_formula(sheet_name, coordinate, self.wb[sheet_name][coordinate].value)
+                            if self.has_graph and self.parser.current_edges:
+                                # Some edges found, graph += edges
+                                section = self.edges[sheet_name][k]
+                                section.update(self.parser.current_edges)
+                        coll[sheet_name][k] = v
                     break
         return coll
 
@@ -277,16 +297,44 @@ class Collector:
         :param s: input formula a simple string
         :return: s | transliterated version
         """
-        if (not self.parsed) or (not isinstance(s,str)):
+        if not self.parsed:
             return s
 
-        log.debug('Parsing {} {} {}'.format(sheet, position, s))
         self.parser.set_current(sheet, position)
+        log.debug('Loading formula {} {} {}'.format(sheet, position, s))
+
+        if not isinstance(s,str):
+            return s
+
         ret = self.parser.transform(s)
         log.debug('Parsed {}'.format(ret))
         return ret
 
+    def set_graph(self):
+        """
+        Ok we have collected a lot of edges in a nested data structure.
+        It must be flattened to obtain adjacency list.
 
+        self.edges :
+        { sheet : { position : { inbound : {0,1,lags}}}
+
+        adjacency list:
+        [ ( inbound, outbound, <dict of metadata> ),...]
+
+        :return:
+          None
+        """
+        if self.has_graph:
+            edges = []
+            for sheet, section in self.edges.items():
+                mapping = dict(zip(self.models[sheet].keys(),self.labels[sheet].values()))
+                for outbound, in_section in section.items():
+                    for inbound, lags in in_section.items():
+                        edges.append(
+                            (f'{sheet}.{inbound}', mapping[outbound], {'l':lags})
+                        )
+
+            self.graph.add_edges_from(edges)
 
     def set_pseudo_excel(self):
         if not self.pseudo:
@@ -297,7 +345,8 @@ class Collector:
                 self.pseudo['xltoy.datetime'] = datetime.now().isoformat()
 
             for sheet, labels in self.labels.items():
-                self.pseudo[sheet] = dict(zip(labels.values(), self.models[sheet].values()))
+
+                self.pseudo[sheet] = {k:v for k,v in zip(labels.values(), self.models[sheet].values()) if k is not None}
                 if sheet in self.data:
                     self.pseudo[sheet]['data'] = self.data[sheet]
 
