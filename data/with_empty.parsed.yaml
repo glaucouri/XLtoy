@@ -7,5 +7,5 @@ Sheet1:
   B2: =B1[T]+2
   C1: =C1[T-1]
   C2: =C1[T]-C2[T-1]
-  D1: =(C1[T]) if (C2[T]>0) else (sum(C1[T],C1[T]/2))
+  D1: =(C1[T] if (C2[T]>0) else sum(C1[T],C1[T]/2))
 

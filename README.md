@@ -14,12 +14,13 @@ XLtoy, more funny.
 
 ### Description
 
-Excel is a good instrument to do analysis activities, model prototipation, reporting and so on, his intuitiveness is the main reason 
-why it is so diffused all around the world. On the other hands, its great diffusion sees it involved in other processes and data flow, 
-where it does not perform very well like change management, error handling, big data, parallel execution and other production processes.
-A lot of IT department works to handle these lacks
+Excel is a good instrument to do analysis activities, model design, reporting and so on, his intuitiveness is the 
+main reason why it is so diffused all around the world. On the other hand, its great diffusion sees it involved in other 
+phases of deploy process. Generally, when excel cross the frontier in processes that involve IT departments it does not perform 
+very well, i mean: change management, error handling, big data, parallel execution, cross platform, deploy on cloud and so on.
+Much of this work is entrusted to the IT department, which works to address these shortcomings.
 
-XLtoy framework come to help this *dark side*, it can read, parse, diff, validate, manage changes and run out of the box complicated 
+XLtoy framework come to help this side, it can read, parse, diff, validate, manage changes and run out of the box complicated 
 models written using Microsoft Excel. Not all features are ready up to now, but the development plan is show below.
 
 This tool is useful for users that write, share, maintain and deploy models written in Excel. 
@@ -33,18 +34,23 @@ This tool is useful for users that write, share, maintain and deploy models writ
        - financial models   
        - forecasting models
 
-After many year in this field, i found that is too difficult, and often useless, to analyze an entire workbook, 
-this approach force to write unpredictable an inefficient algorithms and doesn't work because often we are interested only in a subset 
-of all cells. So main idea, is to identify a subset of areas of interest, defined as *working areas*
-and focus XLtoy only on these, so with minimum changes to an existent sheet, the parser can handle it and produce 
-useful information. If you can apply some **simple 
-[rules](https://raw.githubusercontent.com/glaucouri/xltoy/main/rules.md)**
-you are ready to go!
+In a collaborative environment, for example, a change management tools, can save a lot of time and money. 
+No less, dev-ops (od mod-ops) than need an instrument to identify uniquely model, data, and changes on each delivery. 
+Model differ can identify precisely which and where are the differences using syntactic or semantic algorithm.
+Topological analisys can help to identify interdependencies between formulas.
 
-In a collaborative environment, for example, a change management tools, can save a lot of time and money, comparing two version 
-is useful know what's changed in the data or formulas. No less, dev-ops (od mod-ops) than need an instrument to identify 
-uniquely model, data, and changes on each delivery. Model differ can identify precisely which and where are the differences 
-using syntactic or semantic algorithm.
+
+### How it works
+Analyze an entire workbook, is too difficult, and often useless, this approach force to write unpredictable an inefficient 
+algorithms and doesn't work because often we are interested only in a subset of an entire workbook. So main idea, is to 
+identify a subset of areas of interest, defined as *working areas* and focus XLtoy only on these.
+Working areas are Named range defined by user,  they follow some pattern and address algotithms. So with minimum changes 
+to an existent sheet, the parser can handle it and produce useful information. 
+If you can apply some **simple [rules](https://raw.githubusercontent.com/glaucouri/xltoy/main/rules.md)**
+you are ready to go!
+All other operations are done *out of the box* using command line in order to promote automations and compatibility with 
+all platforms.
+
 
 ### Installation
 It's strongly suggested to use virtualenv:
