@@ -53,6 +53,11 @@ def test_diff(f):
     if os.path.exists(stone_f):
         assert not DiffCollector(f, stone_f).diff
 
+
+@pytest.mark.collector
+@pytest.mark.parametrize("f", [src for src in list(os.walk(base_data_url))[0][2] if src.endswith('.xlsx')])
+def test_diff_parsed(f):
+    f = os.path.join(base_data_url, f)
     stone_f = os.path.join(
                   base_data_url,
                   os.path.splitext(f)[0]+'.parsed.yaml')

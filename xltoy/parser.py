@@ -71,11 +71,12 @@ class Parser:
         lenFunc = stat_function("sqrt")
         andFunc = stat_function("and", obj=condExpr).setParseAction(self.logic_operation)
         orFunc  = stat_function("or", obj=condExpr).setParseAction(self.logic_operation)
-        randFunc= stat_function("rand",empty=True)
+        randFunc= stat_function("rand", empty=True)
+        logFunc = stat_function("log")
         unknowFunc = words + Group(LPAR + (delimitedList(expr|cellRange) | cellRange | expr) + RPAR)
 
         functions = ifFunc | sumFunc | minFunc | maxFunc | aveFunc | sqrFunc | lenFunc | randFunc | \
-                    andFunc| orFunc | unknowFunc
+                    andFunc| orFunc | logFunc | unknowFunc
 
         numericLiteral = ppc.number
 
@@ -155,7 +156,9 @@ class Parser:
         :param tok:
         :return:
         """
-        return '({tok.if_true[0]}) if ({tok.condition[0]}) else ({tok.if_false[0]})'.format(tok=tok)
+        if_true = tok.if_true if isinstance(tok.if_true, str) else tok.if_true[0]
+        if_false = tok.if_false if isinstance(tok.if_false, str) else tok.if_false[0]
+        return f'({if_true} if ({tok.condition[0]}) else {if_false})'.format()
 
     def cell_action(self, tok):
         """
@@ -186,6 +189,9 @@ class Parser:
             offset = col if self.current_sheet_is_vertical else row
             if offset in self.current_pos_to_label:
                 label = self.current_pos_to_label[offset]
+                if label is None:
+                    log.info(f'in sheet {self.current_sheet} lost edge {position} -> {self.current_cell} due to empty label')
+                    return
             else:
                 val = self.collector.wb_data[self.current_sheet][position].value
                 log.info("Found params sheet {} cell {}:{}".format(self.current_sheet,tok.cell.pos,val))

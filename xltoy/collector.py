@@ -327,7 +327,8 @@ class Collector:
         if self.has_graph:
             edges = []
             for sheet, section in self.edges.items():
-                mapping = dict(zip(self.models[sheet].keys(),self.labels[sheet].values()))
+                mapping = dict(zip(self.models[sheet].keys(),
+                                   (f'{sheet}.{outbound}' for outbound in self.labels[sheet].values())))
                 for outbound, in_section in section.items():
                     for inbound, lags in in_section.items():
                         edges.append(
@@ -362,6 +363,16 @@ class Collector:
     def to_json(self):
         self.set_pseudo_excel()
         return ujson.dumps(self.pseudo)
+
+    def store_gml(self, fname=None):
+        """
+
+        :param fname:
+        :param stream:
+        :return:
+        """
+        with timeit("Storing into {}".format(fname)):
+            networkx.write_gml(self.graph, fname,stringizer=str)
 
 
 class YamlCollector(Collector):

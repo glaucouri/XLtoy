@@ -31,6 +31,7 @@ def cli():
 @click.option('--timeit', is_flag=True, help='Print out how many times it takes for the task')
 @click.option('--yaml', is_flag=True, help='Print out the yaml hierarchical view')
 @click.option('--json', is_flag=True, help='Print out the json hierarchical view')
+@click.option('--gml_graph', type=click.Path(exists=False), help='save to a file the topology of models in gml format')
 @click.option('--data', is_flag=True, help='Collect only data, it will ignore formulas')
 @click.option('-v', '--verbose', count=True, help="verbose output (repeat for increased verbosity)")
 @click.option('--add_fingerprint', is_flag=True, help='Add metadata under section xltoy')
@@ -39,6 +40,10 @@ def cli():
 def collect(filename, **kwargs):
     set_verb(kwargs.get('verbose'))
     with timeit("{} collect".format(filename), kwargs.get('timeit')):
+
+        if kwargs.get('gml_graph'):
+            kwargs['parsed'] = True
+
         c = Collector(filename,
                       only_data=kwargs.get('data'),
                       parsed=kwargs.get('parsed'),
@@ -52,6 +57,11 @@ def collect(filename, **kwargs):
         elif kwargs.get('json'):
             with timeit("pseudo to json"):
                 print(c.to_json())
+
+        if kwargs.get('gml_graph') is not None:
+            c.store_gml(kwargs['gml_graph'])
+
+
 
 
 @click.command()
