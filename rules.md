@@ -24,4 +24,4 @@
 ### Parser: unhandled syntax   
 Not all excel syntax in formulas are recognized by the parser , here some unhandled examples:
 
-> *+     [eg: 1*+len(A3)] 
+> \*+     [eg: 1\*+len(A3)] 
