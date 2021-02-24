@@ -73,7 +73,7 @@ It's strongly suggested to use virtualenv:
 All features now are accessible via *xltoy* cli command.
 
 ```
-> xltoy --help
+$ xltoy --help
 
 Usage: xltoy [OPTIONS] COMMAND [ARGS]...
 
@@ -86,10 +86,45 @@ Commands:
 
 ```
 ### Documentation
- 
 
-* [working rules](https://raw.githubusercontent.com/glaucouri/xltoy/main/rules.md)
+```
+$ xltoy collect --help
+Usage: xltoy collect [OPTIONS] FILENAME
+
+Options:
+  --timeit           Print out how many times it takes for the task
+  --yaml             Print out the yaml hierarchical view
+  --json             Print out the json hierarchical view
+  --gml_graph PATH   save to a file the topology of models in gml format
+  --data             Collect only data, it will ignore formulas
+  -v, --verbose      verbose output (repeat for increased verbosity)
+  --add_fingerprint  Add metadata under section xltoy
+  --parsed           Parse formulas and use this version instead of excel
+                     syntax
+
+  --help             Show this message and exit.
+
+$ xltoy diff --help
+Usage: xltoy diff [OPTIONS] FILENAME1 FILENAME2
+
+Options:
+  --timeit           Print out how many times it takes for the task
+  --data             Collect only data, it will ignore formulas
+  --relative         Areas are handled as relative, each starts from row1,col1
+  -v, --verbose      verbose output (repeat for increased verbosity)
+  --add_fingerprint  Add metadata under section xltoy
+  --parsed           Parse formulas and use this version instead of excel
+                     syntax
+
+  --json             Print out in json format instead of default YAML
+  --help             Show this message and exit.
+ 
+```
+Follow tutorials to a deep dive into all features 
+
 * [Tutorial](https://raw.githubusercontent.com/glaucouri/xltoy/main/tutorial.md)
+* [working rules](https://raw.githubusercontent.com/glaucouri/xltoy/main/rules.md)
+
 
 
 
