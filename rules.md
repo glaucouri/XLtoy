@@ -19,6 +19,12 @@
   from same position and must have the same shape. With this technique, each names is coupled to his equation. If names
   range is not given equation will be named as sequence of anon_* names.
 
+### Parser: implemented syntax
+
+* basic operators: \+ - \* /
+* basic functions: sqrt len sum min max ave len log 
+* logic operators: and or 
+* function: rand
 
   
 ### Parser: unhandled syntax   

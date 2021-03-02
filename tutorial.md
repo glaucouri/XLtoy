@@ -53,7 +53,7 @@ So in relative mode, no difference found
 
 #### case 3: huge data diff (>3M cells) 
 
-This exercise was done using data from *https://data.world/* a free datasources provider.
+This exercise was done using data from *https://data.world/* a free data sources provider.
 
 [data source](https://tinyurl.com/ybhqd8g9)
 

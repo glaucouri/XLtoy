@@ -68,7 +68,7 @@ class Parser:
         maxFunc = stat_function("max")
         aveFunc = stat_function("ave")
         sqrFunc = stat_function("sqrt")
-        lenFunc = stat_function("sqrt")
+        lenFunc = stat_function("len")
         andFunc = stat_function("and", obj=condExpr).setParseAction(self.logic_operation)
         orFunc  = stat_function("or", obj=condExpr).setParseAction(self.logic_operation)
         randFunc= stat_function("rand", empty=True)

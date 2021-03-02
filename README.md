@@ -5,7 +5,7 @@
 
 ## XLtoy: 
 
-The ultimate toolkit for Microsoft Excel modelers and mod-operations. 
+The ultimate toolkit for Microsoft Excel modelers and model-ops. 
 
 #### The name
 
@@ -121,11 +121,9 @@ Options:
  
 ```
 Follow tutorials to a deep dive into all features 
-
-* [Tutorial](https://raw.githubusercontent.com/glaucouri/xltoy/main/tutorial.md)
-* [working rules](https://raw.githubusercontent.com/glaucouri/xltoy/main/rules.md)
-
-
+* [working rules](https://raw.githubusercontent.com/glaucouri/xltoy/main/rules.md)  How to manage working areas and how works the parser
+* [Tutorial1](https://raw.githubusercontent.com/glaucouri/xltoy/main/tutorial.md) How to manage values 
+* [Tutorial2](https://raw.githubusercontent.com/glaucouri/xltoy/main/tutorial2.md) How to manage models and formulas
 
 
 #### Framework descriptions
