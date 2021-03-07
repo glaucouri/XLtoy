@@ -1,0 +1,6 @@
+Foglio1:
+  Model: =(G12-G11)*$H$3+I11+$F12*$H$4
+  Signal: 44.93377001879057
+  Time: 0.25
+  Trend: =H11+$F12*$H$4
+

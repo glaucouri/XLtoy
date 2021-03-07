@@ -1,6 +1,6 @@
-## xltoy tutorial
+## XLtoy tutorial 1: values and data diff
 
-#### case1: data diff [positional absolute]
+#### data diff using position: absolute
 
 In this example, we compare 2 workbook with only 1 data range each one. 
 Working area is set only on numeric cells, so we can do positional difference.
@@ -34,7 +34,7 @@ change:
     M7: 905509 -> 905510
 ```
 
-#### case2: data diff [positional relative]
+#### data diff using position: relative
 
 First workbook is from case1
 In second workbook range was moved to another position 
@@ -51,7 +51,7 @@ So in relative mode, no difference found
 
 
 
-#### case 3: huge data diff (>3M cells) 
+#### huge data diff (>3M cells) 
 
 This exercise was done using data from *https://data.world/* a free data sources provider.
 

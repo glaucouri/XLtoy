@@ -9,7 +9,7 @@ for fname in os.listdir():
         # Without parser enabled
         destname = "{}.yaml".format(os.path.splitext(fname)[0])
         if os.path.exists(destname):
-            print("{} nothing to do".format(destname))
+            print("... {} nothing to do".format(destname))
         else:
             print('Doing {}'.format(destname))
             with open(destname, 'wt') as outfile:
@@ -19,7 +19,7 @@ for fname in os.listdir():
         # Parser enabled
         destname = "{}.parsed.yaml".format(os.path.splitext(fname)[0])
         if os.path.exists(destname):
-            print("{} nothing to do".format(destname))
+            print("... {} nothing to do".format(destname))
         else:
             print('Doing {}'.format(destname))
             with open(destname, 'wt') as outfile:

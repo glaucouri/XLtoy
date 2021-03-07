@@ -1,0 +1,6 @@
+Foglio1:
+  Model: =(Signal[T]-Signal[T-1])*Trend[T-9]+Model[T-1]+Time[T]*Trend[T-8]
+  Signal: 44.93377001879057
+  Time: 0.25
+  Trend: =Trend[T-1]+Time[T]*Trend[T-8]
+

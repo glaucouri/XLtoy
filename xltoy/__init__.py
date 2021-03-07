@@ -1,6 +1,6 @@
 import logging
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, Formatter, getLogger, StreamHandler
-__version__ = '0.1.7'
+__version__ = '0.1.8'
 version = __version__
 
 
