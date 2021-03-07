@@ -166,3 +166,4 @@ or json.
 
 #### Version 0.4: big data feature:
 * model can be distributed on a spark cluster and executed in order to work on big data
+
