@@ -42,7 +42,7 @@ class Collector:
     data_names = [re.compile('^data', re.IGNORECASE)]
 
     def __init__(self, url:str, only_data:bool=False, relative:bool=False, add_fingerprint:bool=False,
-                 parsed:bool=False, use_graph:bool=True):
+                 parsed:bool=False, use_graph:bool=True, tag:str=None, description:str=None):
         """
         Data injestion, we need 2 instances of the sheet:
           - wb_data: with static data
@@ -51,10 +51,14 @@ class Collector:
         :param url: url to an input excel file
         :param only_data: read only static values
         :param parsed: use parsed formaulas instead of excel version
-        :param add_fingerprint: add some punctual information in the internal representation
+        :param add_fingerprint: add fingerprint to internal representation
+        :param tag: add a tag attribute to fingherprint
+        :param description: add a description attribute to fingherprint
         :param relative: all area are treated as if they starts from Row1 Col1
         :param use_graph: Initialize and collect the topology of all parsed models default:True
                           available only with parsed=True
+
+        description or tag enable automatically add_fingerprint=True
         """
         if not isfile(url):
             raise FileNotFoundError("File {} does not exists".format(url))
@@ -93,7 +97,6 @@ class Collector:
             else:
                 self.wb = load_workbook(in_mem_file, read_only=True)
         self.relative = relative
-        self.add_fingerprint = add_fingerprint
 
         with timeit("set ranges"):
             self.sheetnames = self.wb_data.sheetnames
@@ -148,7 +151,9 @@ class Collector:
                           self.data_names,
                           use_data=True)
 
-        self.set_pseudo_excel()
+        self.set_pseudo_excel(add_fingerprint=add_fingerprint,
+                              tag=tag,
+                              description=description)
         self.set_graph()
 
 
@@ -337,13 +342,17 @@ class Collector:
 
             self.graph.add_edges_from(edges)
 
-    def set_pseudo_excel(self):
+    def set_pseudo_excel(self, add_fingerprint:str=None, tag:str=None, description:str=None):
         if not self.pseudo:
             # Remember dict are ordered!
-            if self.add_fingerprint:
+            if add_fingerprint or tag or description:
                 self.pseudo['xltoy.version'] = version
                 self.pseudo['xltoy.filename'] = self.url
                 self.pseudo['xltoy.datetime'] = datetime.now().isoformat()
+            if tag:
+                self.pseudo['xltoy.tag'] = tag
+            if description:
+                self.pseudo['xltoy.description'] = description
 
             for sheet, labels in self.labels.items():
 
@@ -355,6 +364,16 @@ class Collector:
             # we have only data range not in sheet with labels
             for sheet in set(self.data) - set(self.labels):
                 self.pseudo[sheet] = self.data[sheet]
+
+    def remove_fingerprint(self):
+        """
+        remove fingerprint information
+        :return:
+        """
+        if self.pseudo:
+            self.pseudo = {k:v for k,v in self.pseudo.items() if not k.startswith('xltoy.')}
+
+
 
     def to_yaml(self):
         self.set_pseudo_excel()
@@ -402,7 +421,7 @@ class JsonCollector(Collector):
 
 
 class DiffCollector:
-    def __init__(self, url1, url2, only_data:bool=False, relative:bool=False, add_fingerprint:bool=False,
+    def __init__(self, url1, url2, only_data:bool=False, relative:bool=False, nofingerprint:bool=False,
                  parsed:bool=False):
         """
         workbook differ, given 2 files (excel, yaml or json) it can do intelligent comparison
@@ -412,7 +431,7 @@ class DiffCollector:
         :param only_data: ignore formulas and compare only values
         :param relative: all area are treated as if they starts from Row1 Col1
         :param parsed: use parsed formaulas instead of excel version
-        :param add_fingerprint:
+        :param nofingerprint: ignore fingerprint information
         """
         def factory(url):
             if url.lower().endswith('.yaml'):
@@ -422,7 +441,7 @@ class DiffCollector:
                 return JsonCollector
 
             return Collector
-        pars = dict(only_data=only_data, relative=relative, add_fingerprint=add_fingerprint, parsed=parsed)
+        pars = dict(only_data=only_data, relative=relative, parsed=parsed)
         with timeit(f"load {url1}"):
             c1 = factory(url1)(url1,**pars)
 
@@ -430,10 +449,14 @@ class DiffCollector:
             c2 = factory(url2)(url2,**pars)
 
         with timeit("making diff"):
+            if nofingerprint:
+                c1.remove_fingerprint()
+                c2.remove_fingerprint()
+
             self.iter_differs = dictdiffer.diff(c1.pseudo,c2.pseudo)
         self.do_diff()
 
-    def do_diff(self):
+    def do_diff(self, nofingerprint:bool=False):
         self.diff = {}
         for kind, mid, sh_cells in self.iter_differs:
             if kind not in self.diff:

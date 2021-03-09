@@ -34,8 +34,10 @@ def cli():
 @click.option('--gml_graph', type=click.Path(exists=False), help='save to a file the topology of models in gml format')
 @click.option('--data', is_flag=True, help='Collect only data, it will ignore formulas')
 @click.option('-v', '--verbose', count=True, help="verbose output (repeat for increased verbosity)")
-@click.option('--add_fingerprint', is_flag=True, help='Add metadata under section xltoy')
+@click.option('--add_fingerprint', is_flag=True, help='Enable fingerprint metadata informations, under section xltoy')
 @click.option('--parsed', is_flag=True, help='Parse formulas and use this version instead of excel syntax')
+@click.option('--tag', help='Add a tag attribute to fingerprint eg: --tag v1.0')
+@click.option('--description', help='Add a description attribute to fingerprint eg: --description model 2020Q1')
 @click.argument('filename')
 def collect(filename, **kwargs):
     set_verb(kwargs.get('verbose'))
@@ -48,6 +50,8 @@ def collect(filename, **kwargs):
                       only_data=kwargs.get('data'),
                       parsed=kwargs.get('parsed'),
                       add_fingerprint=kwargs.get('add_fingerprint'),
+                      tag=kwargs.get('tag'),
+                      description=kwargs.get('description'),
                       )
 
         if kwargs.get('yaml'):
@@ -69,7 +73,7 @@ def collect(filename, **kwargs):
 @click.option('--data', is_flag=True, help='Collect only data, it will ignore formulas')
 @click.option('--relative', is_flag=True, help='Areas are handled as relative, each starts from row1,col1')
 @click.option('-v', '--verbose', count=True, help="verbose output (repeat for increased verbosity)")
-@click.option('--add_fingerprint', is_flag=True, help='Add metadata under section xltoy')
+@click.option('--nofingerprint', is_flag=True, help='Vgnore fingerprint metadata, under section xltoy')
 @click.option('--parsed', is_flag=True, help='Parse formulas and use this version instead of excel syntax')
 @click.option('--json', is_flag=True, help='Print out in json format instead of default YAML')
 @click.argument('filename1')
@@ -81,7 +85,7 @@ def diff(filename1, filename2, **kwargs):
                           only_data=kwargs.get('data'),
                           relative=kwargs.get('relative'),
                           parsed=kwargs.get('parsed'),
-                          add_fingerprint=kwargs.get('add_fingerprint'))
+                          nofingerprint=kwargs.get('nofingerprint'))
         if kwargs.get('json'):
             d.to_json()
         else:
