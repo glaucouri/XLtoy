@@ -73,7 +73,7 @@ def collect(filename, **kwargs):
 @click.option('--data', is_flag=True, help='Collect only data, it will ignore formulas')
 @click.option('--relative', is_flag=True, help='Areas are handled as relative, each starts from row1,col1')
 @click.option('-v', '--verbose', count=True, help="verbose output (repeat for increased verbosity)")
-@click.option('--nofingerprint', is_flag=True, help='Vgnore fingerprint metadata, under section xltoy')
+@click.option('--nofingerprint', is_flag=True, help='Ignore fingerprint metadata, under section xltoy')
 @click.option('--parsed', is_flag=True, help='Parse formulas and use this version instead of excel syntax')
 @click.option('--json', is_flag=True, help='Print out in json format instead of default YAML')
 @click.argument('filename1')
