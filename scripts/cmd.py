@@ -66,6 +66,39 @@ def collect(filename, **kwargs):
             c.store_gml(kwargs['gml_graph'])
 
 
+@click.command()
+@click.option('--timeit', is_flag=True, help='Print out how many times it takes for the task')
+@click.option('--yaml', is_flag=True, help='Print out the yaml hierarchical view')
+@click.option('--json', is_flag=True, help='Print out the json hierarchical view')
+@click.option('--gml_graph', type=click.Path(exists=False), help='save to a file the topology of models in gml format')
+@click.option('-v', '--verbose', count=True, help="verbose output (repeat for increased verbosity)")
+@click.option('--add_fingerprint', is_flag=True, help='Enable fingerprint metadata informations, under section xltoy')
+@click.option('--tag', help='Add a tag attribute to fingerprint eg: --tag v1.0')
+@click.option('--description', help='Add a description attribute to fingerprint eg: --description model 2020Q1')
+@click.argument('filename')
+def parse(filename, **kwargs):
+    set_verb(kwargs.get('verbose'))
+    with timeit("{} collect".format(filename), kwargs.get('timeit')):
+        c = Collector(filename,
+                      only_data=kwargs.get('data'),
+                      parsed=True,
+                      add_fingerprint=kwargs.get('add_fingerprint'),
+                      tag=kwargs.get('tag'),
+                      description=kwargs.get('description'),
+                      )
+
+        if kwargs.get('yaml'):
+            with timeit("pseudo to yaml"):
+                print(c.to_yaml())
+
+        elif kwargs.get('json'):
+            with timeit("pseudo to json"):
+                print(c.to_json())
+
+        if kwargs.get('gml_graph') is not None:
+            c.store_gml(kwargs['gml_graph'])
+
+
 
 
 @click.command()
@@ -93,6 +126,7 @@ def diff(filename1, filename2, **kwargs):
 
 cli.add_command(collect)
 cli.add_command(diff)
+cli.add_command(parse)
 
 if __name__ == '__main__':
     cli()
