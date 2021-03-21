@@ -1,7 +1,6 @@
 import logging
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, Formatter, getLogger, StreamHandler
-__version__ = '0.1.8'
-version = __version__
+__version__ = version = '0.1.9'
 
 
 default_log_name = 'xltoy'
